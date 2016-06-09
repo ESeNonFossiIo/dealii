@@ -23,17 +23,19 @@
 
 DEAL_II_NAMESPACE_OPEN
 
+// ============================================================
+// PolarManifold
+// ============================================================
+
 template <int dim, int spacedim>
-SphericalManifold<dim,spacedim>::SphericalManifold(const Point<spacedim> center):
-  ChartManifold<dim,spacedim,spacedim>(SphericalManifold<dim,spacedim>::get_periodicity()),
+PolarManifold<dim,spacedim>::PolarManifold(const Point<spacedim> center):
+  ChartManifold<dim,spacedim,spacedim>(PolarManifold<dim,spacedim>::get_periodicity()),
   center(center)
 {}
 
-
-
 template <int dim, int spacedim>
 Tensor<1,spacedim>
-SphericalManifold<dim,spacedim>::get_periodicity()
+PolarManifold<dim,spacedim>::get_periodicity()
 {
   Tensor<1,spacedim> periodicity;
   // In two dimensions, theta is periodic.
@@ -45,36 +47,9 @@ SphericalManifold<dim,spacedim>::get_periodicity()
   return periodicity;
 }
 
-
 template <int dim, int spacedim>
 Point<spacedim>
-SphericalManifold<dim,spacedim>::get_new_point(const Quadrature<spacedim> &quad) const
-{
-  if (spacedim == 2)
-    return ChartManifold<dim,spacedim,spacedim>::get_new_point(quad);
-  else
-    {
-      double rho_average = 0;
-      Point<spacedim> mid_point;
-      for (unsigned int i=0; i<quad.size(); ++i)
-        {
-          rho_average += quad.weight(i)*(quad.point(i)-center).norm();
-          mid_point += quad.weight(i)*quad.point(i);
-        }
-      // Project the mid_point back to the right location
-      Tensor<1,spacedim> R = mid_point-center;
-      // Scale it to have radius rho_average
-      R *= rho_average/R.norm();
-      // And return it.
-      return center+R;
-    }
-}
-
-
-
-template <int dim, int spacedim>
-Point<spacedim>
-SphericalManifold<dim,spacedim>::push_forward(const Point<spacedim> &spherical_point) const
+PolarManifold<dim,spacedim>::push_forward(const Point<spacedim> &spherical_point) const
 {
   Assert(spherical_point[0] >=0.0,
          ExcMessage("Negative radius for given point."));
@@ -105,7 +80,7 @@ SphericalManifold<dim,spacedim>::push_forward(const Point<spacedim> &spherical_p
 
 template <int dim, int spacedim>
 Point<spacedim>
-SphericalManifold<dim,spacedim>::pull_back(const Point<spacedim> &space_point) const
+PolarManifold<dim,spacedim>::pull_back(const Point<spacedim> &space_point) const
 {
   const Tensor<1,spacedim> R = space_point-center;
   const double rho = R.norm();
@@ -139,10 +114,9 @@ SphericalManifold<dim,spacedim>::pull_back(const Point<spacedim> &space_point) c
   return p;
 }
 
-
 template <int dim, int spacedim>
 DerivativeForm<1,spacedim,spacedim>
-SphericalManifold<dim,spacedim>::push_forward_gradient(const Point<spacedim> &spherical_point) const
+PolarManifold<dim,spacedim>::push_forward_gradient(const Point<spacedim> &spherical_point) const
 {
   Assert(spherical_point[0] >= 0.0,
          ExcMessage("Negative radius for given point."));
@@ -183,6 +157,80 @@ SphericalManifold<dim,spacedim>::push_forward_gradient(const Point<spacedim> &sp
         Assert(false, ExcNotImplemented());
       }
   return DX;
+}
+
+// ============================================================
+// SphericalManifold
+// ============================================================
+
+template <int dim, int spacedim>
+SphericalManifold<dim,spacedim>::SphericalManifold(const Point<spacedim> center):
+  center(center)
+{}
+
+template <int dim, int spacedim>
+Point<spacedim>
+SphericalManifold<dim,spacedim>::
+get_new_point (const Point<spacedim> &p1,
+               const Point<spacedim> &p2,
+               const double w) const
+{
+  if ( p1 == p2 )
+    return p1;
+
+  if (dim == spacedim)
+    {
+      return Point<spacedim>((1-w) * p1 + w * p2);
+    }
+  else
+    {
+      Assert(w >=0.0 && w <= 1.0,
+             ExcMessage("w should be in the range [0.0,1.0]."));
+      Assert((center-p1).norm() == (center-p2).norm(),
+             ExcMessage("p1 and p2 should have the same norm."));
+
+      Tensor<1,spacedim> V1 = p1 - center;
+      Tensor<1,spacedim> V2 = p2 - center;
+      double R = V1.norm();
+      double gamma = 2 * std::asin( p2.distance(p1) / (2*R) );
+      double sigma = w * gamma;
+      Tensor<1,spacedim> n = V2/R - ((V2/R)*(V1/R))*(V1/R);
+      n = n/n.norm();
+      Tensor<1,spacedim> V = std::cos(sigma) * V1 + std::sin(sigma) * R * n;
+      return Point<spacedim>(center + V/V.norm());
+    }
+}
+
+template <int dim, int spacedim>
+Tensor<1,spacedim>
+SphericalManifold<dim,spacedim>::
+get_tangent_vector (const Point<spacedim> &p1,
+                    const Point<spacedim> &p2) const
+{
+  Assert(p1 != p2,
+         ExcMessage("p1 and p2 should not concide."));
+
+  if (dim == spacedim)
+    {
+      return (p2 - p1)/(p2 - p1).norm();
+    }
+  else
+    {
+      Tensor<1,spacedim> V1 = p1 - center;
+      Tensor<1,spacedim> V2 = p2 - center;
+      Tensor<1,spacedim> E1 = V1 / V1.norm();
+      Tensor<1,spacedim> tg = ( V2  -  ( V2 * E1 ) * E1);
+      return tg/tg.norm();
+    }
+}
+
+template <int dim, int spacedim>
+Point<spacedim>
+SphericalManifold<dim,spacedim>::
+project_to_manifold (const std::vector<Point<spacedim> > &/*vertices*/,
+                     const Point<spacedim> &candidate) const
+{
+  return candidate;
 }
 
 // ============================================================

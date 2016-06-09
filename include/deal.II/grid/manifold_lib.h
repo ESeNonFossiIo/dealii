@@ -34,8 +34,8 @@ DEAL_II_NAMESPACE_OPEN
  * The two template arguments match the meaning of the two template arguments
  * in Triangulation<dim, spacedim>, however this Manifold can be used to
  * describe both thin and thick objects, and the behavior is identical when
- * dim <= spacedim, i.e., the functionality of SphericalManifold<2,3> is
- * identical to SphericalManifold<3,3>.
+ * dim <= spacedim, i.e., the functionality of PolarManifold<2,3> is
+ * identical to PolarManifold<3,3>.
  *
  * The two dimensional implementation of this class works by transforming
  * points to spherical coordinates, taking the average in that coordinate
@@ -55,7 +55,7 @@ DEAL_II_NAMESPACE_OPEN
  * @author Luca Heltai, 2014
  */
 template <int dim, int spacedim = dim>
-class SphericalManifold : public ChartManifold<dim, spacedim, spacedim>
+class PolarManifold : public ChartManifold<dim, spacedim, spacedim>
 {
 public:
   /**
@@ -66,7 +66,7 @@ public:
    * it takes the middle point, and project it along the radius using the
    * average radius of the surrounding points.
    */
-  SphericalManifold(const Point<spacedim> center = Point<spacedim>());
+  PolarManifold(const Point<spacedim> center = Point<spacedim>());
 
   /**
    * Pull back the given point from the Euclidean space. Will return the polar
@@ -84,7 +84,6 @@ public:
   virtual Point<spacedim>
   push_forward(const Point<spacedim> &chart_point) const;
 
-
   /**
    * Given a point in the spacedim dimensional Euclidean space, this
    * method returns the derivatives of the function $F$ that maps from
@@ -101,17 +100,6 @@ public:
   DerivativeForm<1,spacedim,spacedim>
   push_forward_gradient(const Point<spacedim> &chart_point) const;
 
-
-  /**
-   * Let the new point be the average sum of surrounding vertices.
-   *
-   * In the two dimensional implementation, we use the pull_back and
-   * push_forward mechanism. For three dimensions, this does not work well, so
-   * we overload the get_new_point function directly.
-   */
-  virtual Point<spacedim>
-  get_new_point(const Quadrature<spacedim> &quad) const;
-
   /**
    * The center of the spherical coordinate system.
    */
@@ -125,6 +113,68 @@ private:
   static Tensor<1,spacedim> get_periodicity();
 };
 
+
+/**
+ * Manifold description for a spherical space coordinate system.
+ *
+ * You can use this Manifold object to describe any sphere, circle,
+ * hypersphere or hyperdisc in two or three dimensions, both as a co-dimension
+ * one manifold descriptor or as co-dimension zero manifold descriptor.
+ *
+ * The two template arguments match the meaning of the two template arguments
+ * in Triangulation<dim, spacedim>, however this Manifold can be used to
+ * describe both thin and thick objects, and the behavior is identical when
+ * dim <= spacedim, i.e., the functionality of SphericalManifold<2,3> is
+ * identical to SphericalManifold<3,3>.
+ *
+ * @ingroup manifold
+ *
+ * @author Mauro Bardelloni, Luca Heltai, 2016
+ */
+template <int dim, int spacedim = dim>
+class SphericalManifold : public Manifold<dim, spacedim>
+{
+public:
+  /**
+   * The Constructor takes the center of the spherical coordinates system.
+   * This class uses the pull_back and push_forward mechanism to transform
+   * from Cartesian to spherical coordinate systems, taking into account the
+   * periodicity of base Manifold in two dimensions, while in three dimensions
+   * it takes the middle point, and project it along the radius using the
+   * average radius of the surrounding points.
+   */
+  SphericalManifold(const Point<spacedim> center = Point<spacedim>());
+
+  /**
+   * TODO:
+   */
+  virtual
+  Point<spacedim>
+  get_new_point(const Point<spacedim> &p1,
+                const Point<spacedim> &p2,
+                const double w) const;
+
+  /**
+   * TODO:
+   */
+  virtual
+  Tensor<1,spacedim>
+  get_tangent_vector (const Point<spacedim> &x1,
+                      const Point<spacedim> &x2) const;
+
+  /**
+   * TODO:
+   */
+  virtual
+  Point<spacedim>
+  project_to_manifold (const std::vector<Point<spacedim> > &/*vertices*/,
+                       const Point<spacedim> &candidate) const;
+
+  /**
+   * The center of the spherical coordinate system.
+   */
+  const Point<spacedim> center;
+};
 
 /**
  * Cylindrical Manifold description.  In three dimensions, points are
