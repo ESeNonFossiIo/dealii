@@ -71,7 +71,7 @@ get_new_point (const Quadrature<spacedim> &quad) const
 
   for (unsigned int i=1; i<quad.size(); ++i)
     {
-      if ( w != 0 && quad.weight(i) != 0)
+      if ( w != 0 )
         p = get_new_point(p, quad.point(i) , w/(quad.weight(i) + w) );
       w += quad.weight(i);
     }

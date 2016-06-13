@@ -175,13 +175,10 @@ get_new_point (const Point<spacedim> &p1,
                const Point<spacedim> &p2,
                const double w) const
 {
-  if ( p1 == p2 )
-    return p1;
-
   Assert(w >=0.0 && w <= 1.0,
          ExcMessage("w should be in the range [0.0,1.0]."));
-  Assert(std::abs((p1 - p2).norm()) > 1e-12 * std::abs((p1 + p2).norm()),
-         ExcMessage("p1 and p2 should have the same norm."));
+
+  if ( p1 == p2 ) return p1;
 
   const Tensor<1,spacedim> v1 = p1 - center;
   const Tensor<1,spacedim> v2 = p2 - center;
@@ -205,7 +202,7 @@ get_new_point (const Point<spacedim> &p1,
   const Tensor<1,spacedim> P = std::cos(sigma) * t + std::sin(sigma) * n;
 
   // Project this point on the manifold.
-  return Point<spacedim>(center + (r1+w*(r2-r1)) *P);
+  return Point<spacedim>(center + (r1+w*(r2-r1))*P);
 }
 
 template <int dim, int spacedim>
