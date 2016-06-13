@@ -127,6 +127,28 @@ private:
  * dim <= spacedim, i.e., the functionality of SphericalManifold<2,3> is
  * identical to SphericalManifold<3,3>.
  *
+ *  PolarManifold reflects the usual notion of polar coordinates but can be 
+ *  a bad choice in the case we are interested in the north or south pole.
+ *  Consider for istance the couple of points \f$x_1=(1,\pi/3,0)\f$ and 
+ *  \f$x_2=(1,\pi/3,\pi)\f$.
+ *  These two point are connented (using a PolarManifold) by means of the curve
+ *  \$[
+ *  \begin{align}
+ *  	s: [0,1]  & \rightarrow &  \mathbb S^3 \\
+ *  	   			t & \mapsto     &  (1,\pi/3,0) + (0,0,t\pi)
+ *  \$] 
+ *  This curve is not a geodesic an probably it is not we would choose. A better
+ *  courve would be the one passing through the North pole:
+ *  \[
+ *   s(t) = x_1 \cos(\alpha(t)) + \kappa \times x_1 \sin(\alpha(t)) +
+ *   \kappa ( \kappa \cdot x_1) (1-\cos(\alpha(t))).
+ *  \]
+ *  where $\kappa = \frac{x_1 \times \x_2}{\Vert x_1 \times \x_2 \Vert}$
+ *  and $\alpha(t) = t * \arccos(x_1 * x_2) $ for $t\in[0,1]$.
+ *  Indeed, this is a geodesic and completely avoid the singularities in the poles.
+ *  
+ *  @note This is a corollary of the so called \emph{Rodrigues' rotation formula}.
+ *  
  * @ingroup manifold
  *
  * @author Mauro Bardelloni, Luca Heltai, 2016
