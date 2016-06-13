@@ -1,0 +1,12 @@
+
+DEAL::-----------------------------------
+DEAL::Grid has been saved into grid.vtk
+DEAL:: MappingManifold
+DEAL:: Surface area     = 12.5058
+DEAL::  Relative error  = -0.00481934
+DEAL::-----------------------------------
+DEAL::Grid has been saved into grid.vtk
+DEAL:: MappingQ
+DEAL:: Surface area     = 12.5664
+DEAL::  Relative error  = 4.23599e-09
+DEAL::-----------------------------------

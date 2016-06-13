@@ -186,10 +186,10 @@ get_new_point (const Point<spacedim> &p1,
   const double r2 = v2.norm();
 
   // Find the angle gamma described by v1 and v2:
-  const double gamma = std::acos(v1*v2)/(r1*r2);
+  const double gamma = std::acos((v1*v2)/(r1*r2));
 
   // Find the angle sigma that correspont to archlengh equal to w
-  const double sigma = w * gamma;
+  const double sigma = (1-w) * gamma;
 
   // Versor with the same direction of v1
   const Tensor<1,spacedim> t = v1/r1;
@@ -202,7 +202,7 @@ get_new_point (const Point<spacedim> &p1,
   const Tensor<1,spacedim> P = std::cos(sigma) * t + std::sin(sigma) * n;
 
   // Project this point on the manifold.
-  return Point<spacedim>(center + (r1+w*(r2-r1))*P);
+  return Point<spacedim>(center + (w*r1+(1-w)*r2)*P);
 }
 
 template <int dim, int spacedim>
@@ -223,7 +223,7 @@ get_tangent_vector (const Point<spacedim> &p1,
 
   const double gamma = std::acos(e1*e2);
 
-  return (r2-r1)*e1 + r1*gamma*tg;
+  return (r1-r2)*e1 + r1*gamma*tg;
 }
 
 template <int dim, int spacedim>

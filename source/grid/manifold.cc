@@ -52,7 +52,7 @@ get_new_point (const Point<spacedim> &p1,
   std::vector<Point<spacedim> > vertices;
   vertices.push_back(p1);
   vertices.push_back(p2);
-  return project_to_manifold(vertices, p1 + w*(p2-p1));
+  return project_to_manifold(vertices, w * p1 + (1-w)*p2 );
 }
 
 template <int dim, int spacedim>

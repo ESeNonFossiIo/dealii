@@ -176,6 +176,31 @@ public:
                 const Point<spacedim> &p2,
                 const double w) const;
 
+  virtual
+  Point<spacedim>
+  get_new_point (const Quadrature<spacedim> &quad) const
+  {
+    Assert(quad.size() > 0,
+           ExcMessage("Quadrature should have at least one point."));
+
+    Assert(std::abs(std::accumulate(quad.get_weights().begin(), quad.get_weights().end(), 0.0)-1.0) < 1e-10,
+           ExcMessage("The weights for the individual points should sum to 1!"));
+
+    Point<spacedim> p = quad.point(0);
+    double w = quad.weight(0);
+
+    for (unsigned int i=1; i<quad.size(); ++i)
+      {
+        if ( w != 0 )
+          p = get_new_point(p, quad.point(i) , w/(quad.weight(i) + w) );
+        else 
+          p = quad.point(i);
+        w += quad.weight(i);
+      }
+
+    return p;
+  };
+
   /**
    * TODO:
    */
