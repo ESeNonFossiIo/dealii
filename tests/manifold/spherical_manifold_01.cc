@@ -26,11 +26,11 @@ main()
 {
   initlog();
 
-  // Center and radius of the Ball
-  Point<2> center(0.0, 0.0);
-  double radius = center.norm();
+  // // Center and radius of the Ball
+  // double radius = center.norm();
 
   {
+    Point<2> center(0.0, 0.0);
     const SphericalManifold<2,2> manifold(center);
 
     Point<2> P1(1.0, 0.0);
@@ -58,6 +58,7 @@ main()
   }
 
   {
+    Point<2> center(0.0, 0.0);
     const SphericalManifold<1,2> manifold(center);
 
     Point<2> P1(1.0, 0.0);
@@ -84,6 +85,49 @@ main()
     deallog << "=================================" << std::endl;
   }
 
+  {
+    Point<3> center(0.0, 0.0, 0.0);
+    const SphericalManifold<2,3> manifold(center);
+
+    Point<3> P1(1.0, 0.0, 0.0);
+    Point<3> P2(0.0, 0.0, 1.0);
+
+    Point<3> Q = manifold.get_new_point(P1, P2, .5);
+
+    deallog << "=================================" << std::endl;;
+    deallog << manifold.get_new_point(P1, P2, .125) << std::endl;
+    deallog << manifold.get_new_point(P1, P2, .25) << std::endl;
+    deallog << manifold.get_new_point(P1, P2, .375) << std::endl;
+    deallog << manifold.get_new_point(P1, P2, .5) << std::endl;
+    deallog << manifold.get_new_point(P1, P2, .625) << std::endl;
+    deallog << manifold.get_new_point(P1, P2, .75) << std::endl;
+    deallog << manifold.get_new_point(P1, P2, .875) << std::endl;
+    deallog << "=================================" << std::endl;
+    deallog << manifold.get_new_point(P1, Q, .25) << std::endl;
+    deallog << manifold.get_new_point(P1, Q, .5) << std::endl;
+    deallog << manifold.get_new_point(P1, Q, .75) << std::endl;
+    deallog << manifold.get_new_point(P1, P2,.5) << std::endl;
+    deallog << manifold.get_new_point(Q, P2, .25) << std::endl;
+    deallog << manifold.get_new_point(Q, P2, .5) << std::endl;
+    deallog << manifold.get_new_point(Q, P2, .75) << std::endl;
+    deallog << "=================================" << std::endl;
+  }
+
+  {
+    Point<3> center(0.0, 0.0, 0.0);
+    const SphericalManifold<3,3> manifold(center);
+
+    Point<3> P1(2.0, 0.0, 0.0);
+    Point<3> P2(0.0, std::sqrt(2), std::sqrt(2) );
+
+    Point<3> Q = manifold.get_new_point(P1, P2, .5);
+
+    const unsigned int num_points = 20;
+    deallog << "=================================" << std::endl;;
+    for(unsigned int i = 0; i<num_points; i++)
+      deallog << manifold.get_new_point(P1, P2, (1.0*i)/(num_points-1)) << std::endl;
+    deallog << "=================================" << std::endl;
+  }
   return 0;
 }
 
