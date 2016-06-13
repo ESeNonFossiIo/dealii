@@ -277,7 +277,7 @@ public:
    */
   virtual
   Point<spacedim>
-  get_new_point(  const Point<spacedim> &p2,
+  get_new_point(  const Point<spacedim> &p1,
                   const Point<spacedim> &p2,
                   const double w) const;
 

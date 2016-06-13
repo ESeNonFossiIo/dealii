@@ -178,27 +178,34 @@ get_new_point (const Point<spacedim> &p1,
   if ( p1 == p2 )
     return p1;
 
-  if (dim == spacedim)
-    {
-      return Point<spacedim>((1-w) * p1 + w * p2);
-    }
-  else
-    {
-      Assert(w >=0.0 && w <= 1.0,
-             ExcMessage("w should be in the range [0.0,1.0]."));
-      Assert((center-p1).norm() == (center-p2).norm(),
-             ExcMessage("p1 and p2 should have the same norm."));
+  Assert(w >=0.0 && w <= 1.0,
+         ExcMessage("w should be in the range [0.0,1.0]."));
+  Assert(std::abs((p1 - p2).norm()) > 1e-12 * std::abs((p1 + p2).norm()),
+         ExcMessage("p1 and p2 should have the same norm."));
 
-      Tensor<1,spacedim> V1 = p1 - center;
-      Tensor<1,spacedim> V2 = p2 - center;
-      double R = V1.norm();
-      double gamma = 2 * std::asin( p2.distance(p1) / (2*R) );
-      double sigma = w * gamma;
-      Tensor<1,spacedim> n = V2/R - ((V2/R)*(V1/R))*(V1/R);
-      n = n/n.norm();
-      Tensor<1,spacedim> V = std::cos(sigma) * V1 + std::sin(sigma) * R * n;
-      return Point<spacedim>(center + V/V.norm());
-    }
+  const Tensor<1,spacedim> v1 = p1 - center;
+  const Tensor<1,spacedim> v2 = p2 - center;
+  const double r1 = v1.norm();
+  const double r2 = v2.norm();
+
+  // Find the angle gamma described by v1 and v2:
+  const double gamma = std::acos(v1*v2)/(r1*r2);
+
+  // Find the angle sigma that correspont to archlengh equal to w
+  const double sigma = w * gamma;
+
+  // Versor with the same direction of v1
+  const Tensor<1,spacedim> t = v1/r1;
+  // Normal to v1 in the plane described by v1,v2,and the origin.
+  Tensor<1,spacedim> n = v2 - (v2*t)*t;
+  n = n/n.norm();
+
+  // Find the point Q along O,v1 such that
+  // P1,V,P2 has measure sigma.
+  const Tensor<1,spacedim> P = std::cos(sigma) * t + std::sin(sigma) * n;
+
+  // Project this point on the manifold.
+  return Point<spacedim>(center + (r1+w*(r2-r1)) *P);
 }
 
 template <int dim, int spacedim>
@@ -210,18 +217,16 @@ get_tangent_vector (const Point<spacedim> &p1,
   Assert(p1 != p2,
          ExcMessage("p1 and p2 should not concide."));
 
-  if (dim == spacedim)
-    {
-      return (p2 - p1)/(p2 - p1).norm();
-    }
-  else
-    {
-      Tensor<1,spacedim> V1 = p1 - center;
-      Tensor<1,spacedim> V2 = p2 - center;
-      Tensor<1,spacedim> E1 = V1 / V1.norm();
-      Tensor<1,spacedim> tg = ( V2  -  ( V2 * E1 ) * E1);
-      return tg/tg.norm();
-    }
+  const double r1 = (p1 - center).norm();
+  const double r2 = (p2 - center).norm();
+  const Tensor<1,spacedim> e1 = (p1 - center)/r1;
+  const Tensor<1,spacedim> e2 = (p2 - center)/r2;
+  Tensor<1,spacedim> tg = (e2-(e2*e1)*e1);
+  tg = tg / tg.norm();
+
+  const double gamma = std::acos(e1*e2);
+
+  return (r2-r1)*e1 + r1*gamma*tg;
 }
 
 template <int dim, int spacedim>

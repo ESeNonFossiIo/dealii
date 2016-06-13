@@ -32,8 +32,6 @@ template <int dim, int spacedim>
 Manifold<dim, spacedim>::~Manifold ()
 {}
 
-
-
 template <int dim, int spacedim>
 Point<spacedim>
 Manifold<dim, spacedim>::
@@ -54,7 +52,7 @@ get_new_point (const Point<spacedim> &p1,
   std::vector<Point<spacedim> > vertices;
   vertices.push_back(p1);
   vertices.push_back(p2);
-  project_to_manifold(vertices, w*p1 + (1-w)*p2);
+  return project_to_manifold(vertices, p1 + w*(p2-p1));
 }
 
 template <int dim, int spacedim>
