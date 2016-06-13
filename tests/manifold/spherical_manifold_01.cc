@@ -124,7 +124,7 @@ main()
 
     const unsigned int num_points = 20;
     deallog << "=================================" << std::endl;;
-    for(unsigned int i = 0; i<num_points; i++)
+    for (unsigned int i = 0; i<num_points; i++)
       deallog << manifold.get_new_point(P1, P2, (1.0*i)/(num_points-1)) << std::endl;
     deallog << "=================================" << std::endl;
   }
