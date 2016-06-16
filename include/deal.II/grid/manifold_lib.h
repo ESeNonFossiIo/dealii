@@ -214,7 +214,7 @@ public:
    */
   virtual
   Point<spacedim>
-  project_to_manifold (const std::vector<Point<spacedim> > &/*vertices*/,
+  project_to_manifold (const std::vector<Point<spacedim> > &vertices,
                        const Point<spacedim> &candidate) const;
 
   /**

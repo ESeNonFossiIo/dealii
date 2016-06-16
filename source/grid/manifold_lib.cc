@@ -225,16 +225,20 @@ get_tangent_vector (const Point<spacedim> &p1,
 
   const double gamma = std::acos(e1*e2);
 
-  return ((r1-r2)*e1 + r1*gamma*tg)/((r1-r2)*e1 + r1*gamma*tg).norm();
+  return (r1-r2)*e1 + r1*gamma*tg;
 }
 
 template <int dim, int spacedim>
 Point<spacedim>
 SphericalManifold<dim,spacedim>::
-project_to_manifold (const std::vector<Point<spacedim> > &/*vertices*/,
+project_to_manifold (const std::vector<Point<spacedim> > &vertices,
                      const Point<spacedim> &candidate) const
 {
-  return candidate;
+  double rho = 0.0;
+  for(unsigned int i = 0; i<vertices.size(); i++)
+    rho += vertices[i].norm();
+  rho /= (1.0*vertices.size());
+  return (rho/candidate.norm())*candidate;
 }
 
 // ============================================================
