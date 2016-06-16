@@ -218,12 +218,14 @@ get_tangent_vector (const Point<spacedim> &p1,
   const double r2 = (p2 - center).norm();
   const Tensor<1,spacedim> e1 = (p1 - center)/r1;
   const Tensor<1,spacedim> e2 = (p2 - center)/r2;
+
+  // Tangent vector to the unit sphere along the geodesic given by e1 and e2.
   Tensor<1,spacedim> tg = (e2-(e2*e1)*e1);
   tg = tg / tg.norm();
 
   const double gamma = std::acos(e1*e2);
 
-  return (r1-r2)*e1 + r1*gamma*tg;
+  return ((r1-r2)*e1 + r1*gamma*tg)/((r1-r2)*e1 + r1*gamma*tg).norm();
 }
 
 template <int dim, int spacedim>
