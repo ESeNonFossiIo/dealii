@@ -181,8 +181,7 @@ get_new_point (const Point<spacedim> &p1,
   if ( p1 == p2 ) return p1;
 
   //const Tensor<1,spacedim> v0 = p1 - center;
-  const Tensor<1,spacedim> v1 = get_new_point(p1, p2, w) - center;
-  // TODO: fix the length of the vector... this should be ok
+  const Tensor<1,spacedim> v1 = p1 - center;
   const Tensor<1,spacedim> v2 = p2 - center;
   const double r1 = v1.norm();
   const double r2 = v2.norm();
