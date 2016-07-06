@@ -407,7 +407,8 @@ get_new_point_on_hex (const Triangulation<3, 3>::hex_iterator &hex) const
 template <int dim, int spacedim>
 Tensor<1,spacedim>
 Manifold<dim,spacedim>::get_tangent_vector(const Point<spacedim> &x1,
-                                           const Point<spacedim> &x2) const
+                                           const Point<spacedim> &x2,
+                                           const double /*w*/) const
 {
   const double epsilon = 1e-8;
 
@@ -503,7 +504,8 @@ FlatManifold<dim, spacedim>::get_periodicity() const
 template <int dim, int spacedim>
 Tensor<1,spacedim>
 FlatManifold<dim, spacedim>::get_tangent_vector (const Point<spacedim> &x1,
-                                                 const Point<spacedim> &x2) const
+                                                 const Point<spacedim> &x2,
+                                                 const double w) const
 {
   Tensor<1,spacedim> direction = x2-x1;
 
@@ -578,7 +580,8 @@ template <int dim, int spacedim, int chartdim>
 Tensor<1,spacedim>
 ChartManifold<dim,spacedim,chartdim>::
 get_tangent_vector (const Point<spacedim> &x1,
-                    const Point<spacedim> &x2) const
+                    const Point<spacedim> &x2,
+                    const double /*w*/) const
 {
   const DerivativeForm<1,chartdim,spacedim> F_prime = push_forward_gradient(pull_back(x1));
   const Tensor<1,chartdim>                  delta   = sub_manifold.get_tangent_vector(pull_back(x1),

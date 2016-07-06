@@ -207,7 +207,8 @@ public:
   virtual
   Tensor<1,spacedim>
   get_tangent_vector (const Point<spacedim> &x1,
-                      const Point<spacedim> &x2) const;
+                      const Point<spacedim> &x2,
+                      const double w = 0) const;
 
   /**
    * TODO:

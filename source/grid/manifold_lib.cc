@@ -180,7 +180,9 @@ get_new_point (const Point<spacedim> &p1,
 
   if ( p1 == p2 ) return p1;
 
-  const Tensor<1,spacedim> v1 = p1 - center;
+  //const Tensor<1,spacedim> v0 = p1 - center;
+  const Tensor<1,spacedim> v1 = get_new_point(p1, p2, w) - center;
+  // TODO: fix the length of the vector... this should be ok
   const Tensor<1,spacedim> v2 = p2 - center;
   const double r1 = v1.norm();
   const double r2 = v2.norm();
@@ -209,23 +211,27 @@ template <int dim, int spacedim>
 Tensor<1,spacedim>
 SphericalManifold<dim,spacedim>::
 get_tangent_vector (const Point<spacedim> &p1,
-                    const Point<spacedim> &p2) const
+                    const Point<spacedim> &p2,
+                    const double w) const
 {
   Assert(p1 != p2,
          ExcMessage("p1 and p2 should not concide."));
 
-  const double r1 = (p1 - center).norm();
+  const Point<spacedim> p3 = get_new_point(p1, p2, w);
+  
+  const double r1 = (p3 - center).norm();
   const double r2 = (p2 - center).norm();
-  const Tensor<1,spacedim> e1 = (p1 - center)/r1;
+  
+  const Tensor<1,spacedim> e3 = (p3 - center)/r1;
   const Tensor<1,spacedim> e2 = (p2 - center)/r2;
 
   // Tangent vector to the unit sphere along the geodesic given by e1 and e2.
-  Tensor<1,spacedim> tg = (e2-(e2*e1)*e1);
+  Tensor<1,spacedim> tg = (e3-(e3*e2)*e2);
   tg = tg / tg.norm();
 
-  const double gamma = std::acos(e1*e2);
+  const double gamma = std::acos(e3*e2);
 
-  return (r1-r2)*e1 + r1*gamma*tg;
+  return (r2-r1)*e2 + r2*gamma*tg;
 }
 
 template <int dim, int spacedim>
