@@ -193,7 +193,7 @@ public:
       {
         if ( w != 0 )
           p = get_new_point(p, quad.point(i) , w/(quad.weight(i) + w) );
-        else 
+        else
           p = quad.point(i);
         w += quad.weight(i);
       }

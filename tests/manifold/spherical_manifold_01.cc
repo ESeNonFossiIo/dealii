@@ -141,7 +141,7 @@ main()
     std::vector<Point<3> > points2(3);
     std::vector<Point<3> > points3(3);
     std::vector<double > weights(3);
-    
+
     points1[0] = P1;
     points1[1] = P2;
     points1[2] = P3;
@@ -153,7 +153,7 @@ main()
     points3[0] = P2;
     points3[1] = P3;
     points3[2] = P1;
-    
+
     weights[0] = 1.0/3.0;
     weights[1] = 1.0/3.0;
     weights[2] = 1.0/3.0;
@@ -161,15 +161,15 @@ main()
     Quadrature<3> quad1(points1, weights);
     Quadrature<3> quad2(points2, weights);
     Quadrature<3> quad3(points3, weights);
-    
+
     Point<3> Q = manifold.get_new_point(quad1);
     Point<3> S = manifold.get_new_point(quad2);
     Point<3> T = manifold.get_new_point(quad3);
-    
+
     Point<3> P5(0.707107, 0.707107, 0.0);
     Point<3> P4(0.0, 0.0, 1.0);
     Point<3> R = manifold.get_new_point(P5, P4, 2.0/3.0);
-    
+
     deallog << "=================================" << std::endl;;
     deallog << Q << std::endl;
     deallog << S << std::endl;

@@ -217,18 +217,18 @@ get_tangent_vector (const Point<spacedim> &p1,
          ExcMessage("p1 and p2 should not concide."));
 
   const Point<spacedim> p3 = get_new_point(p1, p2, w);
-  
-  const double r1 = (p3 - center).norm();
+
+  const double r1 = (p1 - center).norm();
   const double r2 = (p2 - center).norm();
-  
-  const Tensor<1,spacedim> e3 = (p3 - center)/r1;
+
+  const Tensor<1,spacedim> e1 = (p1 - center)/r1;
   const Tensor<1,spacedim> e2 = (p2 - center)/r2;
 
   // Tangent vector to the unit sphere along the geodesic given by e1 and e2.
-  Tensor<1,spacedim> tg = (e3-(e3*e2)*e2);
+  Tensor<1,spacedim> tg = (e1-(e1*e2)*e2);
   tg = tg / tg.norm();
 
-  const double gamma = std::acos(e3*e2);
+  const double gamma = std::acos(e1*e2);
 
   return (r2-r1)*e2 + r2*gamma*tg;
 }
@@ -240,7 +240,7 @@ project_to_manifold (const std::vector<Point<spacedim> > &vertices,
                      const Point<spacedim> &candidate) const
 {
   double rho = 0.0;
-  for(unsigned int i = 0; i<vertices.size(); i++)
+  for (unsigned int i = 0; i<vertices.size(); i++)
     rho += vertices[i].norm();
   rho /= (1.0*vertices.size());
   return (rho/candidate.norm())*candidate;

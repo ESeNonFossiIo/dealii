@@ -57,21 +57,19 @@ struct MappingEnum
   };
 };
 
-void test (MappingEnum::type mapping_name)
+void test (MappingEnum::type mapping_name, unsigned int refinements=1)
 {
   using namespace dealii;
 
   deallog.depth_console (0);
 
-  const unsigned int degree = 9;   // Degree of shape functions
-
-  const unsigned int n_refine = 1; // Number of initial global refinements
+  const unsigned int degree = 2;   // Degree of shape functions
 
   Triangulation<2,3>   triangulation;
 
   FE_Q<2,3>            fe(degree);
   DoFHandler<2,3>      dof_handler(triangulation);
-  QGauss<2>            cell_quadrature(degree+1);
+  QGaussLobatto<2>            cell_quadrature(degree+1);
 
 
 
@@ -92,7 +90,7 @@ void test (MappingEnum::type mapping_name)
       // deallog << "Setting SphericalManifold\n";
     }
 
-  triangulation.refine_global(n_refine);
+  triangulation.refine_global(refinements);
   dof_handler.distribute_dofs (fe);
 
   {
@@ -141,17 +139,24 @@ void test (MappingEnum::type mapping_name)
     {
       double patch_surface = 0;
       fe_values.reinit (cell);
+      const auto &qp = fe_values.get_quadrature_points();
+
+
       for (unsigned int q_point=0; q_point<n_q_points; ++q_point)
         {
           patch_surface += fe_values.JxW(q_point);
+          // deallog << "--> " << qp[q_point] << std::endl;
         }
       // deallog  << " Patch area       = "
       //            << patch_surface << std::endl;
       surface_area += patch_surface;
     }
 
-  deallog << " Surface area     = "
-          << surface_area << std::endl;
+  deallog << " Refinements      = "
+          << std::setw(5)
+          << refinements;
+  // deallog << " Surface area     = "
+  //         << surface_area << std::endl;
   deallog << "  Relative error  = "
           << (surface_area - 4 * numbers::PI * radius * radius) /
           (4 * numbers::PI * radius * radius)
@@ -167,9 +172,11 @@ int main()
   std::string bar(35,'-');
 
   deallog << bar << std::endl;
-  test(MappingEnum::MappingManifold);
+  for (unsigned int i = 1; i<8; ++i)
+    test(MappingEnum::MappingManifold, i);
   deallog << bar << std::endl;
-  test(MappingEnum::MappingQ);
+  for (unsigned int i = 1; i<8; ++i)
+    test(MappingEnum::MappingQ, i);
   deallog << bar << std::endl;
 
   return 0;
